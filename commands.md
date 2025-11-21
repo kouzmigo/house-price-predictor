@@ -1,3 +1,6 @@
+# Original source
+https://github.com/gouravshah/hosue-price-predictor
+
 # Environment setup.
 uv venv --python python3.14
 source .venv/bin/activate
@@ -18,8 +21,21 @@ python src/models/train_model.py --config configs/model_config.yaml --data data/
 # Run MLflow
 docker-compose -f deployment/mlflow/docker-compose.yaml up -d
 
-# Buil docker images and run
+# Build docker images and run
 docker image build -t hpp-fastapi .
 docker image history hpp-fastapi:latest
 docker run -idtP hpp-fastapi:latest
 docker run --rm -it hpp-fastapi:latest bash
+
+
+# curl command for testing
+curl -X POST "http://localhost:55000/predict" \
+-H "Content-Type: application/json" \
+-d '{
+  "sqft": 1500,
+  "bedrooms": 3,
+  "bathrooms": 2,
+  "location": "suburban",
+  "year_built": 2000,
+  "condition": "fair"
+}'

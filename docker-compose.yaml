@@ -1,19 +1,18 @@
-services: 
-  fastapi: 
-    image: initcron/fastapi:dev  
-    build: 
+services:
+  hpp-fastapi:
+    image: kouzmigo/fastapi
+    build:
       context: .
       dockerfile: Dockerfile
-    ports: 
+    ports:
       - 8000:8000
 
-  streamlit: 
-    image: initcron/streamlit:dev
+  hpp-streamlit:
+    image: kouzmigo/streamlit
     build:
       context: ./streamlit_app
       dockerfile: Dockerfile
     ports:
       - 8501:8501
-    environment: 
-      API_URL: http://fastapi:8000 
-
+    environment:
+      API_URL: http://fastapi:8000
