@@ -26,7 +26,7 @@ docker image build -t hpp-fastapi .
 docker image history hpp-fastapi:latest
 docker run -idtP hpp-fastapi:latest
 docker run --rm -it hpp-fastapi:latest bash
-
+docker compose up -d
 
 # curl command for testing
 curl -X POST "http://localhost:55000/predict" \
