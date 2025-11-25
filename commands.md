@@ -39,3 +39,14 @@ curl -X POST "http://localhost:55000/predict" \
   "year_built": 2000,
   "condition": "fair"
 }'
+
+
+# Kubernetes deployment
+kind get clusters
+kind create cluster --config Downloads/kind-example-config.yaml                                              
+kubectl create deployment hpp-streamlit --image=kouzmigo/hpp-streamlit:latest --port=8501
+kubectl get all
+kubectl get deploy
+kubectl describe deploy hpp-streamlit
+kubectl scale deploy hpp-streamlit --replicas=3
+kubectl create service nodeport hpp-streamlit --tcp=8501 --node-port=30000
