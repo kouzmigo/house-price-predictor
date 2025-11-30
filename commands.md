@@ -22,7 +22,8 @@ python src/models/train_model.py --config configs/model_config.yaml --data data/
 docker-compose -f deployment/mlflow/docker-compose.yaml up -d
 
 # Build docker images and run
-docker image build -t hpp-fastapi .
+docker image build -t kouzmigo/hpp-fastapi .
+docker push kouzmigo/hpp-fastapi
 docker image history hpp-fastapi:latest
 docker run -idtP hpp-fastapi:latest
 docker run --rm -it hpp-fastapi:latest bash
@@ -50,3 +51,27 @@ kubectl get deploy
 kubectl describe deploy hpp-streamlit
 kubectl scale deploy hpp-streamlit --replicas=3
 kubectl create service nodeport hpp-streamlit --tcp=8501 --node-port=30000
+
+kubectl create service nodeport hpp-streamlit --tcp=8501 --node-port=30000 --dry-run=client -o yaml > hpp-model-service.yaml
+
+kubectl port-forward pod/hpp-streamlit-5cb9f5bc5b-9znhb 8081:8501
+kubectl set image deploy hpp-streamlit hpp-streamlit=kouzmigo/hpp-streamlit:v2
+kubectl apply -f hpp-model-service.yaml
+
+# Monitoring
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+kubectl create namespace monitoring
+helm install my-prometheus oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack -n monitoring
+
+helm upgrade --install my-prometheus \
+ -n monitoring \
+ --create-namespace \
+ oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack \
+ --set grafana.service.type=NodePort \
+ --set grafana.service.nodePort=30200 \
+ --set prometheus.service.type=NodePort \
+ --set prometheus.service.nodePort=30300
+
+helm delete my-prometheus -n monitoring
+helm list -n monitoring
